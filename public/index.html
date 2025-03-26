@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Monitor</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <header>
+        <div class="content-head">
+            <h1><img src="./img/iot.png" width="50px" height="50" alt="sidebar">MINI IOT</h1>
+        </div>
+    </header>
+    <section>
+        <div class="content-box">
+            <div class="sidebar">
+                <p class="menu active"><img src="./img/home.png" width="20px" height="20" alt="sidebar">Home</p>
+                <p class="menu"><img src="./img/calendar.png" width="20px" height="20" alt="sidebar">Event</p>
+                <p class="menu"><img src="./img/settings.png" width="20px" height="20" alt="sidebar">Setting</p>
+            </div>
+            <div class="content">
+                <h2>Display</h2>
+                <div class="grid">
+                    <div class="box">
+                        <h3>Info</h3>
+                        <div class="con-info">
+                            <div class="box-info-one">
+                                <div class="head-info">
+                                    <div class="con-img">
+                                        <img src="./img/cpu.png" width="30" height="30" alt="device">
+                                    </div>
+                                    <p>Device</p>
+                                </div>
+                                <div class="descript">
+                                    <p>temperature</p>
+                                    <div id="temperature" class="temperature"></div>
+                                </div>
+                                <div id="alert"></div>
+                            </div>
+                            <div class="box-info-two">
+                                <div class="head-info">
+                                    <div class="con-img">
+                                        <img src="./img/cpu.png" width="30" height="30" alt="device">
+                                    </div>
+                                    <p>Device</p>
+                                </div>
+                                <div class="descript">
+                                    <p>temperature</p>
+                                    <div id="temperature">none °C</div>
+                                </div>
+                            </div>
+                            <div class="box-info-three">
+                                <div class="head-info">
+                                    <div class="con-img">
+                                        <img src="./img/cpu.png" width="30" height="30" alt="device">
+                                    </div>
+                                    <p>Device</p>
+                                </div>
+                                <div class="descript">
+                                    <p>temperature</p>
+                                    <div id="temperature">none °C</div>
+                                </div>
+                            </div>
+                            <div class="box-info-four">
+                                <div class="head-info">
+                                    <div class="con-img">
+                                        <img src="./img/cpu.png" width="30" height="30" alt="device">
+                                    </div>
+                                    <p>Device</p>
+                                </div>
+                                <div class="descript">
+                                    <p>temperature</p>
+                                    <div id="temperature">none °C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <h3>Light Status</h3>
+                        <div id="light-status" class="light-status">Unknown</div>
+                    </div>
+                    <div class="box">
+                        <div class="con-btn">
+                            <button class="btn off">OFF</button>
+                            <button class="btn on">ON</button>
+                        </div>
+                    </div>
+                    <div class="box">4</div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
