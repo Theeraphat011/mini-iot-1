@@ -39,10 +39,10 @@ database.ref("device/sensor/applianceState").on("value", (snapshot) => {
       lightStatusDisplay.style.color = "green";
    } else if (lightState === 0) {
       lightStatusDisplay.textContent = "Light is OFF";
-      lightStatusDisplay.style.color = "red";
+      lightStatusDisplay.style.color = "gray";
    } else {
       lightStatusDisplay.textContent = "Unknown";
-      lightStatusDisplay.style.color = "gray";
+      lightStatusDisplay.style.color = "blue";
    }
 });
 

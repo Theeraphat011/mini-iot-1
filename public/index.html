@@ -4,14 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature Monitor</title>
+    <title>Temperature || Monitor</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./img/internet-of-things.png " type="image/x-icon">
 </head>
 
 <body>
     <header>
         <div class="content-head">
             <h1><img src="./img/iot.png" width="50px" height="50" alt="sidebar">MINI IOT</h1>
+            <p class="tagline">Your Smart IoT Monitoring System</p>
         </div>
     </header>
     <section>
@@ -37,6 +39,7 @@
                                 <div class="descript">
                                     <p>temperature</p>
                                     <div id="temperature" class="temperature"></div>
+                                    <div id="light-status" class="light-status">Unknown</div>
                                 </div>
                                 <div id="alert"></div>
                             </div>
@@ -94,9 +97,10 @@
         </div>
 
     </section>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
+    <script src="./script.js"></script>
 </body>
 
 </html>
