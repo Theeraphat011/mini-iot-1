@@ -1,6 +1,5 @@
-#define APPLIANCE_ONE 22  
-#define APPLIANCE_TWO 23  
-#define TEMP_PIN 39       
+#define APPLIANCE_ONE 22
+#define APPLIANCE_TWO 23
 
 #include <WiFi.h>
 #include <Firebase_ESP_Client.h>
@@ -9,87 +8,104 @@
 
 #define WIFI_SSID "wifi"
 #define WIFI_PASSWORD "12345678"
-#define API_KEY "AIzaSyCy5xj93dr2CIDGJZBLt_88kLlAbFS4UUg"
-#define SECRET "mnNHMY8drHiDGEZkhlGqs4JERy8eTTXsUTdWeHOj"
-#define DATABASE_URL "mini-iot-1-default-rtdb.firebaseio.com/"
+#define API_KEY "AIzaSyBv_GMIALQf_uR_wgdiaotbR5C9lEA18LA"
+#define SECRET "nxiAuvIkmf4jiUKt9zQqv1CHJJeG11gTkNCNbN1s"
+#define DATABASE_URL "mini-iot-2-default-rtdb.firebaseio.com/"
 
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
 
+unsigned long lastUpdateTime = 0;
+const unsigned long UPDATE_INTERVAL = 1000; // 1 second
+bool firebaseConnected = false;
+
 void setup() {
   pinMode(APPLIANCE_ONE, OUTPUT);
   pinMode(APPLIANCE_TWO, OUTPUT);
+  digitalWrite(APPLIANCE_ONE, LOW);
+  digitalWrite(APPLIANCE_TWO, LOW);
   
   Serial.begin(115200);
+  
+  connectToWiFi();
+  setupFirebase();
+}
 
+void connectToWiFi() {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
-  while (WiFi.status() != WL_CONNECTED) {
+  unsigned long startTime = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000) {
     Serial.print(".");
     delay(300);
   }
-  Serial.print("Connected with IP: ");
-  Serial.println(WiFi.localIP());
-  Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
+  
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("\nConnected with IP: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nWiFi connection failed");
+  }
+}
 
+void setupFirebase() {
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
   config.signer.tokens.legacy_token = SECRET;
-
+  
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
+  
+  Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
 }
 
 void loop() {
-  float currentTemp = readTemperature();
+  if (millis() - lastUpdateTime >= UPDATE_INTERVAL) {
+    if (WiFi.status() == WL_CONNECTED) {
+      updateAppliances();
+      reportStatus();
+    } else {
+      Serial.println("WiFi disconnected, attempting to reconnect...");
+      connectToWiFi();
+    }
+    lastUpdateTime = millis();
+  }
+}
 
-  if (Firebase.RTDB.getInt(&fbdo, "device/website/control")) {
+void updateAppliances() {
+  if (Firebase.ready() && Firebase.RTDB.getInt(&fbdo, "device/led")) {
     int controlState = fbdo.intData();
     
-    if (controlState == 1 && currentTemp < 80.0) {
+    if (controlState == 1) {
       digitalWrite(APPLIANCE_ONE, HIGH);
       digitalWrite(APPLIANCE_TWO, HIGH);
-      Serial.println("Appliances ON (from web control, temp OK)");
-    } else if (controlState == 0 || currentTemp >= 80.0) {
+      Serial.println("Appliances ON");
+    } else if (controlState == 0) {
       digitalWrite(APPLIANCE_ONE, LOW);
       digitalWrite(APPLIANCE_TWO, LOW);
-      if (currentTemp >= 80.0) {
-        Serial.println("Appliances OFF (temp >= 80°C override)");
-      } else {
-        Serial.println("Appliances OFF (from web control)");
-      }
+      Serial.println("Appliances OFF");
     }
   } else {
     Serial.println("Failed to get control state: " + fbdo.errorReason());
   }
-
-  if (currentTemp >= 80.0) {
-    if (Firebase.RTDB.setString(&fbdo, "/alert", false)) {
-      Serial.println("Alert sent: ร้อนเกิน" );
-    } else {
-      Serial.println("Failed to send alert: " + fbdo.errorReason());
-    }
-  } else {
-    if (Firebase.RTDB.setString(&fbdo, "/alert", true)) {
-      Serial.println("Alert cleared");
-    }
-  }
-
-  if (Firebase.RTDB.setFloat(&fbdo, "device/sensor/currentTemp", currentTemp) &&
-      Firebase.RTDB.setInt(&fbdo, "device/sensor/applianceState", digitalRead(APPLIANCE_ONE))) {
-    Serial.println("Data updated successfully:");
-    Serial.println("Current Temp: " + String(currentTemp) + "°C");
-    Serial.println("Appliance State: " + String(digitalRead(APPLIANCE_ONE)));
-  } else {
-    Serial.println("Failed to update data: " + fbdo.errorReason());
-  }
-
-  delay(1000); 
 }
 
-float readTemperature() {
-  int tempValue = analogRead(TEMP_PIN); 
-  float temperature = map(tempValue, 0, 4095, 0, 100); 
-  return temperature;
+void reportStatus() {
+  int state1 = digitalRead(APPLIANCE_ONE);
+  int state2 = digitalRead(APPLIANCE_TWO);
+  
+  if (Firebase.ready()) {
+    if (Firebase.RTDB.setInt(&fbdo, "device/state1", state1)) {
+      Serial.println("State1 updated: " + String(state1));
+    } else {
+      Serial.println("Failed to update state1: " + fbdo.errorReason());
+    }
+    
+    if (Firebase.RTDB.setInt(&fbdo, "device/state2", state2)) {
+      Serial.println("State2 updated: " + String(state2));
+    } else {
+      Serial.println("Failed to update state2: " + fbdo.errorReason());
+    }
+  }
 }
